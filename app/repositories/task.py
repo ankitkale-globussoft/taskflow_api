@@ -10,6 +10,8 @@ class TaskRepository:
     async def create(self, task_in: TaskCreate, user_id: str) -> Task:
         task = Task(**task_in.model_dump(), user_id=user_id)
         self.db.add(task)
-        self.db.commit()
-        await self.db.refresh(Task)
+
+        await self.db.commit()
+        await self.db.refresh(task)
+        
         return task

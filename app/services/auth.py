@@ -1,9 +1,10 @@
 from fastapi import HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.repositories.auth import UserRepository
 from app.models.user import User
-from app.schemas.user import UserRegister, UserLogin
+from app.schemas.user import UserRegister, Token
 from app.core.secqurity import hash_password, verify_password, create_access_token
 
 class AuthService:
@@ -27,7 +28,7 @@ class AuthService:
         await self.db.refresh(user)
         return user
     
-    async def login(self, user_in: UserLogin):
+    async def login(self, user_in: OAuth2PasswordRequestForm):
         user = await self.repo.get_by_username(user_in.username)
 
         if not user:
@@ -38,7 +39,4 @@ class AuthService:
 
         token = create_access_token({"sub": user.id})
 
-        return {
-            "access_token": token,
-            "token_type": "bearer"
-        }
+        return Token(access_token=token)
