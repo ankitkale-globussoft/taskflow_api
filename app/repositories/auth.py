@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User
-from app.schemas.user import UserRegister, UserLogin, UserResponse
+from app.schemas.user import UserRegister, UserLogin, UserResponse, UserUpdate
 
 class UserRepository:
     def __init__(self, db: AsyncSession):
@@ -23,3 +23,25 @@ class UserRepository:
     async def create(self, user: User) -> User:
         self.db.add(user)
         return user
+    
+    async def update(self, user_id: str, user_in: UserUpdate) -> User | None:
+        user = await self.get_user_by_id(user_id)
+        if not user:
+            return None
+        update_data = user_in.model_dump(exclude_unset=True)
+        for feild, value in update_data:
+            setattr(user, feild, value)
+        
+        await self.db.commit()
+        await self.db.refresh(user)
+
+        return user
+    
+    async def delete(self, user_id: str) -> bool:
+        user = await self.get_user_by_id(user_id)
+        if not user:
+            return False
+        
+        await self.db.delete(user)
+        await self.db.commit()
+        return True

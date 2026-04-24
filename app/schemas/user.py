@@ -1,5 +1,5 @@
 import re
-from pydantic import BaseModel, EmailStr, ConfigDict, field_validator
+from pydantic import BaseModel, EmailStr, ConfigDict, field_validator, model_validator
 
 class UserRegister(BaseModel):
     email: EmailStr
@@ -27,6 +27,45 @@ class UserRegister(BaseModel):
             raise ValueError("Password must contain at least one number")
         
         return v
+    
+class UserUpdate(BaseModel):
+    email: EmailStr | None
+    username: str | None
+    password: str | None
+    confirm_password: str | None
+
+    @field_validator("username")
+    @classmethod
+    def validte_username(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        v = v.strip()
+        if not re.match(r"^[a-zA-Z0-9_]{3,30}$", v):
+            raise ValueError("Username must be 3-30 characters and contain only letters, numbers or underscores")
+        return v
+    
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        v = v.strip()
+        if len(v) < 8:
+            raise ValueError("Password must be atleast 8 characters")
+        if not re.search(r"[A-Z]", v):
+            raise ValueError("Password must contain at least one uppercase letter")
+        if not re.search(r"[0-9]", v):
+            raise ValueError("Password must contain at least one number")
+        return v
+    
+    @model_validator(mode="after")
+    def check_password_match(self):
+        if self.password:
+            if not self.confirm_password:
+                raise ValueError("Confirm password is required")
+            if self.password != self.confirm_password:
+                raise ValueError("Password and Confirm password doesnot match")
+            return self
 
 class UserLogin(BaseModel):
     username: str
