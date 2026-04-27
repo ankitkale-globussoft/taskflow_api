@@ -10,6 +10,10 @@ class Settings(BaseSettings):
     APP_NAME: str
     DEBUG: bool
 
+    # Redis
+    REDIS_URL: str = "redis://localhost:6379/0"
+    CACHE_TTL_SECONDS: int = 300
+ 
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

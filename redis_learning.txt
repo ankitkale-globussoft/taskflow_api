@@ -1,0 +1,24 @@
+install redis:- 
+
+docker run -d --name taskfow-redis -p 6379:6379 redis:7-alipne
+
+verify running :- docker ps
+
+test connection :- 
+
+docker exec -it taskfow-redis redis-cli ping
+should output pong
+
+--
+
+now install some packages in fastapi project
+
+uv add redis[hiredis] msgpack
+
+redis[hiredis] — the async Redis client. hiredis is a C extension that makes parsing Redis responses significantly faster than the pure Python parser.
+msgpack — for serializing Python objects into bytes before storing in Redis. Faster and smaller than JSON, better than pickle (which is unsafe with untrusted data).
+
+Add Redis config:
+# Redis
+REDIS_URL=redis://localhost:6379/0
+CACHE_TTL_SECONDS=300
