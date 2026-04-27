@@ -1,0 +1,11 @@
+install slowapi
+"slowapi is the standard rate limiting library for FastAPI — it's a port of Flask-Limiter built on top of limits. It integrates directly with FastAPI's dependency injection and gives you per-route and global limits with Redis as the backend."
+
+create limiter
+app/cache/limiter.py 
+
+Step 3 — Register the limiter on the app (app/main.py)
+
+Step 4 — Apply limits to auth routes
+
+Step 5 — Apply limits to task routes
